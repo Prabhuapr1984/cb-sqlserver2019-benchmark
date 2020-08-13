@@ -1,2 +1,4 @@
 # cb-sqlserver2019-benchmark
-Chef Cookbook for Microsoft SQL Server 2019 benchmark (CIS)
+
+This cookbook will harden Microsoft SQL Server 2019 against CIS Benchmark.
+

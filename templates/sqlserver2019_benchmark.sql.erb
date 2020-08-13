@@ -1,0 +1,1101 @@
+/*
+This Script is to validate against CIS settings and enforce hardening for Microsoft SQL Server 
+per document of <CIS_Microsoft_SQL_Server_2019_Benchmark_v1.1.0>'
+
+*/
+select 'Starting Script for CIS MS SQL Server Audit and Remedy:'
+select 'Once script done, you may need to restart SQL server service to take effects, you can run the script again to verify'
+
+use master;
+go
+declare @val as int, @val_use as int;
+declare @config_option as varchar(200);
+DECLARE @DB_Name varchar(100) 
+DECLARE @Command nvarchar(2500)
+declare @string nvarchar(1000)
+declare @loginname varchar(100)
+
+/*
+1.1 Ensure Latest SQL Server Service Packs and Hotfixes are Installed (Not Scored)
+*/
+select '1.1 SQL Patch:'
+declare @ver as varchar(11)
+SELECT SERVERPROPERTY('ProductLevel') as SP_installed, SERVERPROPERTY('ProductVersion') as Version;
+SELECT @ver= replace(convert(varchar(11),SERVERPROPERTY('ProductVersion')),'.','');
+--check SQL 2019
+if left(@ver,2)='13' 
+begin
+if convert(int,@ver)<13050260
+select 'The version is SQL Server 2019, current patch is not the latest! please consider patching your server';
+else
+select 'The SQL Server version is 2019, current patch is upto date. Compliant!';
+end
+
+/*
+1.2 Ensure Single-Function Member Servers are Used (Not Scored)
+*/
+-- Unable to Audit & remedy in T-SQL
+select '1.2 Single-Function Member Servers:'
+select 'Ignored'
+
+
+/*
+2.1 Ensure 'Ad Hoc Distributed Queries' Server Configuration Option isset to '0' (Scored)
+*/
+select '2.1 Ad Hoc Distributed Queries:'
+select @config_option='Ad Hoc Distributed Queries'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+ ' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.2 Ensure 'CLR Enabled' Server Configuration Option is set to '0' (Scored)
+*/
+select '2.2 CLR Enabled:'
+select @config_option='clr enabled'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.3 Ensure 'Cross DB Ownership Chaining' Server Configuration Option is set to '0' (Scored)
+*/
+select '2.3 Cross DB Ownership Chaining:'
+select @config_option='cross db ownership chaining'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.4 Ensure 'Database Mail XPs' Server Configuration Option is set to '0'(Scored)
+*/
+select '2.4 Database Mail XPs:'
+select @config_option='Database Mail XPs'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.5 Ensure 'Ole Automation Procedures' Server Configuration Option is set to '0' (Scored)
+*/
+select '2.5 Ole Automation Procedures:'
+select @config_option='Ole Automation Procedures'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.6 Ensure 'Remote Access' Server Configuration Option is set to '0' (Scored)
+*/
+select '2.6 Remote Access:'
+select @config_option='remote access'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.7 Ensure 'Remote Admin Connections' Server Configuration Option is set to '0' (Scored)
+*/
+select '2.6 Remote Admin Connections:'
+select @config_option='Remote Admin Connections'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.8 Ensure 'Scan For Startup Procs' Server Configuration Option is set to '0' (Scored)
+*/
+select '2.8 Scan For Startup Procs:'
+select @config_option='scan for startup procs'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=0 and @val_use=0
+select @config_option+' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 0;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+2.9 Ensure 'Trustworthy' Database Property is set to 'Off' (Scored)
+*/
+select '2.9 Trustworthy:'
+if exists(SELECT name
+FROM sys.databases
+WHERE is_trustworthy_on = 1
+AND name != 'msdb')
+Begin
+select 'There are database(s) have Trustworthy on, turning off now';
+--DECLARE @DB_Name varchar(100) 
+--DECLARE @Command nvarchar(500) 
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases WHERE is_trustworthy_on = 1 AND name != 'msdb' 
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+     SELECT @Command = 'ALTER DATABASE '+ @DB_Name+ ' SET TRUSTWORTHY OFF;'
+     EXEC sp_executesql @Command 
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+select 'turning off done'
+End
+
+else
+select 'There are NO database(s) have Trustworthy on';
+
+/*
+2.10 Ensure Unnecessary SQL Server Protocols are set to 'Disabled' (Not Scored)
+*/
+select '2.10 SQL Server Protocols:'
+SELECT 'Named Pipes' AS [Protocol], iif(value_data = 1, 'Yes', 'No') AS isEnabled
+FROM sys.dm_server_registry
+WHERE registry_key LIKE '%np' AND value_name = 'Enabled'
+UNION
+SELECT 'Shared Memory', iif(value_data = 1, 'Yes', 'No')
+FROM sys.dm_server_registry
+WHERE registry_key LIKE '%sm' AND value_name = 'Enabled'
+UNION
+SELECT 'TCP/IP', iif(value_data = 1, 'Yes', 'No')
+FROM sys.dm_server_registry
+WHERE registry_key LIKE '%tcp' AND value_name = 'Enabled'
+-- Audit Only, unable to remedy in T-SQL
+
+/*
+2.11 Ensure SQL Server is configured to use non-standard ports (Not Scored)
+*/
+select '2.11 SQL Server Ports:'
+SELECT 'TCP Port' as tcpPort, value_name, value_data 
+FROM sys.dm_server_registry 
+WHERE registry_key LIKE '%IPALL' AND value_name in ('TcpPort','TcpDynamicPorts')
+-- Audit Only, unable to remedy in T-SQL
+
+/*
+2.12 Ensure 'Hide Instance' option is set to 'Yes' for Production SQL Server instances (Scored)
+*/
+select '2.12 Hide Instance:'
+DECLARE @getValue INT;
+EXEC master.sys.xp_instance_regread
+@rootkey = N'HKEY_LOCAL_MACHINE',
+@key = N'SOFTWARE\Microsoft\Microsoft SQL Server\MSSQLServer\SuperSocketNetLib',
+@value_name = N'HideInstance',
+@value = @getValue OUTPUT;
+SELECT @getValue;
+if @getValue=1
+select 'Hide Instance settings are compliant'
+else
+Begin
+select 'Hide Instance settings are not compliant, configuring now'
+EXEC master.sys.xp_instance_regwrite
+@rootkey = N'HKEY_LOCAL_MACHINE',
+@key = N'SOFTWARE\Microsoft\Microsoft SQL Server\MSSQLServer\SuperSocketNetLib',
+@value_name = N'HideInstance',
+@type = N'REG_DWORD',
+@value = 1;
+select 'configuring done'
+End
+
+/*
+2.13 Ensure the 'sa' Login Account is set to 'Disabled' (Scored)
+*/
+select '2.13 sa disable:'
+if exists(SELECT name, is_disabled
+FROM sys.server_principals
+WHERE sid = 0x01
+AND is_disabled = 0)
+begin
+select 'sa enabled, disabling now'
+USE [master];
+DECLARE @tsql nvarchar(max)
+SET @tsql = 'ALTER LOGIN ' + SUSER_NAME(0x01) + ' DISABLE;'
+EXEC (@tsql)
+select 'sa disabled'
+end
+else
+select 'sa is disabled'
+
+/*
+2.14 Ensure the 'sa' Login Account has been renamed (Scored)
+*/
+select '2.14 sa rename:'
+if (SELECT name
+FROM sys.server_principals
+WHERE sid = 0x01)='sa'
+begin
+select 'sa not renamed, renaming now'
+USE [master];
+ALTER LOGIN sa WITH NAME = [sa_renamed];
+select 'sa renamed'
+end
+else
+select 'sa is renamed'
+
+/*
+2.15 Ensure 'AUTO_CLOSE' is set to 'OFF' on contained databases (Scored)
+*/
+select '2.15 AUTO_CLOSE:'
+if exists(SELECT name, containment, containment_desc, is_auto_close_on
+FROM sys.databases
+WHERE containment <> 0 and is_auto_close_on = 1)
+Begin
+select 'There are database(s) have AUTO_CLOSE on, turning off now';
+--DECLARE @DB_Name varchar(100) 
+--DECLARE @Command nvarchar(200) 
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases
+WHERE containment <> 0 and is_auto_close_on = 1
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+     SELECT @Command = 'ALTER DATABASE '+ @DB_Name+ ' SET AUTO_CLOSE OFF;'
+     EXEC sp_executesql @Command 
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+select 'change done'
+End
+
+else
+select 'There are NO database(s) have AUTO_CLOSE on';
+
+/*
+2.16 Ensure no login exists with the name 'sa' (Scored)
+*/
+select '2.17 sa not exist:'
+--change DB owner ID with changed sa account base on 2.14
+if exists(SELECT name FROM sys.databases where  suser_sname( owner_sid )='sa')
+Begin
+select 'There are database(s) have sa as DB owner ID';
+--DECLARE @DB_Name varchar(100) 
+--DECLARE @Command nvarchar(200) 
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases where  suser_sname( owner_sid )='sa'
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+     SELECT @Command = 'ALTER AUTHORIZATION ON DATABASE::'+@DB_name+' TO [sa_renamed];'
+     EXEC sp_executesql @Command 
+	 
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+select 'change done'
+End
+
+else
+select 'There are NO database(s) have sa as DB owner ID';
+
+/*
+3.1 Ensure 'Server Authentication' Property is set to 'Windows Authentication Mode'
+*/
+select '3.1 Server Authentication:'
+if (SELECT SERVERPROPERTY('IsIntegratedSecurityOnly')) = 1 
+begin
+select 'Authentication is not Windows Authentication Mode, changing to Windows Authentication mode'
+USE [master];
+EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE',
+N'Software\Microsoft\MSSQLServer\MSSQLServer', N'LoginMode', REG_DWORD, 1
+select 'change done'
+end
+else
+select 'Authentication is Windows Authentication mode'
+
+/*
+3.2 Ensure CONNECT permissions on the 'guest' user is Revoked within all SQL Server databases excluding the master, msdb and tempdb (Scored)
+*/
+select '3.2 CONNECT permissions on guest:'
+
+Begin
+
+--DECLARE @DB_Name varchar(100) 
+--DECLARE @Command nvarchar(500) 
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases where name NOT IN ('master','tempdb','msdb')
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+SELECT @Command = 'USE '+@DB_Name+'; select ''check '+@DB_Name+':'';
+if exists(SELECT DB_NAME() AS DatabaseName, ''guest'' AS Database_User,
+[permission_name], [state_desc]
+FROM sys.database_permissions
+WHERE [grantee_principal_id] = DATABASE_PRINCIPAL_ID(''guest'')
+AND [state_desc] LIKE ''GRANT%''
+AND [permission_name] = ''CONNECT'')
+begin
+select ''CONNECT permissions is not compliant, revoking now''
+REVOKE CONNECT FROM guest;
+select ''change done''
+end
+else
+select ''CONNECT permissions is compliant''
+'
+     EXEC sp_executesql @Command 
+	 --select @command
+	 
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+End
+
+/*
+3.3 Ensure 'Orphaned Users' are Dropped From SQL Server Databases
+*/
+select '3.3 Orphaned Users:'
+--declare @string varchar(1000)
+IF OBJECT_ID('tempdb..#orphanuser') IS NOT NULL
+    DROP TABLE #orphanuser
+create table #orphanuser (
+                        username varchar(100) NOT NULL,
+                        usersid varchar(100) NOT NULL
+                       )
+
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases where  database_id>4
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+set @string=''
+SELECT @Command = 'USE '+@DB_Name+'; select ''check '+@DB_Name+':''; 
+insert into #orphanuser EXEC sp_change_users_login @Action=''Report'';'
+EXEC sp_executesql @Command
+
+if exists(
+select * from #orphanuser)
+begin
+select 'there are Orphan users, droping them now'
+
+select @string=@string+ 'drop user '+username+';' from #orphanuser
+
+set @string='USE '+@DB_Name+';'+@string
+EXEC sp_executesql @string
+delete from #orphanuser
+select 'droping done'
+end
+else
+select 'there are no Orphan users'
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+
+/*
+3.4 Ensure SQL Authentication is not used in contained databases (Scored)
+*/
+-- select '3.4 contained databases:'
+
+-- IF OBJECT_ID('tempdb..#containuser') IS NOT NULL
+--     DROP TABLE #containuser
+-- create table #containuser (
+--                         username varchar(100) NOT NULL
+                        
+--                        )
+
+-- DECLARE database_cursor CURSOR FOR 
+-- SELECT name FROM sys.databases where  database_id>4
+
+-- OPEN database_cursor 
+
+-- FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+-- WHILE @@FETCH_STATUS = 0 
+-- BEGIN 
+-- set @string=''
+-- SELECT @Command = 'USE '+@DB_Name+'; select ''check '+@DB_Name+':'';
+-- insert into #containuser SELECT name 
+-- FROM sys.database_principals
+-- WHERE name NOT IN (''dbo'',''Information_Schema'',''sys'',''guest'')
+-- AND type IN (''U'',''S'',''G'')
+-- AND authentication_type = 2;'
+-- EXEC sp_executesql @Command
+
+-- if exists(
+-- select * from #containuser)
+-- begin
+-- select 'there are Contained DB users, disabling them now'
+
+-- select @string=@string+ 'Drop user '+username+' ;' from #containuser
+
+-- set @string='USE '+@DB_Name+';'+@string
+-- select @string
+-- EXEC sp_executesql @string
+-- delete from #containuser
+-- select 'droping done'
+-- end
+-- else
+-- select 'there are no Contained DB users'
+
+--      FETCH NEXT FROM database_cursor INTO @DB_Name 
+-- END 
+
+-- CLOSE database_cursor 
+-- DEALLOCATE database_cursor
+
+
+
+
+/*
+3.5 Ensure the SQL Server�s MSSQL Service Account is Not an Administrator (Not Scored)
+*/
+select '3.5 SQL service account:'
+select 'Ignored'
+-- Unable to Audit & remedy in T-SQL
+
+/*
+3.6 Ensure the SQL Server�s SQLAgent Service Account is Not an Administrator (Not Scored)
+*/
+select '3.6 Agent service account:'
+select 'Ignored'
+-- Unable to Audit & remedy in T-SQL
+
+/*
+3.7 Ensure the SQL Server�s Full-Text Service Account is Not an Administrator (Not Scored)
+*/
+select '3.7 Full-tex service account:'
+select 'Ignored'
+-- Unable to Audit & remedy in T-SQL
+
+/*
+3.8 Ensure only the default permissions specified by Microsoft are granted to the public server role (Scored)
+*/
+select '3.8 default permissions:'
+use master;
+
+set @string=''
+if exists(SELECT *
+FROM master.sys.server_permissions
+WHERE (grantee_principal_id = SUSER_SID(N'public') and state_desc LIKE
+'GRANT%')
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'VIEW ANY DATABASE' and
+class_desc = 'SERVER')
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 2)
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 3)
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 4)
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 5))
+begin
+select 'there are extraneous permissions on public role, revoking now'
+SELECT @string=@string+'REVOKE '+[permission_name]+' FROM public;'
+FROM master.sys.server_permissions
+WHERE (grantee_principal_id = SUSER_SID(N'public') and state_desc LIKE
+'GRANT%')
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'VIEW ANY DATABASE' and
+class_desc = 'SERVER')
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 2)
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 3)
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 4)
+AND NOT (state_desc = 'GRANT' and [permission_name] = 'CONNECT' and
+class_desc = 'ENDPOINT' and major_id = 5)
+EXEC sp_executesql @string
+select 'revoke done'
+end
+else
+select 'there are no extraneous permissions on public role'
+
+/*
+3.9 Ensure Windows BUILTIN groups are not SQL Logins (Scored)
+*/
+select '3.9 BUILTIN groups:'
+set @string=''
+use master;
+if exists(SELECT pr.[name], pe.[permission_name], pe.[state_desc]
+FROM sys.server_principals pr
+JOIN sys.server_permissions pe
+ON pr.principal_id = pe.grantee_principal_id
+WHERE pr.name like 'BUILTIN%' and pr.type<>'S')
+
+begin 
+select 'there are buildin login, droping now'
+SELECT @string=@string+'DROP LOGIN ['+pr.[name]+'];'
+FROM sys.server_principals pr
+JOIN sys.server_permissions pe
+ON pr.principal_id = pe.grantee_principal_id
+WHERE pr.name like 'BUILTIN%' and pr.type<>'S'
+EXEC sp_executesql @string
+select 'droping done'
+end
+
+else
+select 'there are no buildin login'
+
+/*
+3.10 Ensure Windows local groups are not SQL Logins (Scored)
+*/
+select '3.10 local groups:'
+set @string=''
+use master;
+if exists(
+SELECT pr.[name] AS LocalGroupName, pe.[permission_name], pe.[state_desc]
+FROM sys.server_principals pr
+JOIN sys.server_permissions pe
+ON pr.[principal_id] = pe.[grantee_principal_id]
+WHERE pr.[type_desc] = 'WINDOWS_GROUP'
+AND pr.[name] like CAST(SERVERPROPERTY('MachineName') AS nvarchar) + '%')
+
+begin 
+select 'there are local groups, droping now'
+SELECT @string=@string+'DROP LOGIN ['+pr.[name]+'];'
+FROM sys.server_principals pr
+JOIN sys.server_permissions pe
+ON pr.[principal_id] = pe.[grantee_principal_id]
+WHERE pr.[type_desc] = 'WINDOWS_GROUP'
+AND pr.[name] like CAST(SERVERPROPERTY('MachineName') AS nvarchar) + '%'
+EXEC sp_executesql @string
+select 'droping done'
+end
+
+else
+select 'there are no local groups'
+
+/*
+3.11 Ensure the public role in the msdb database is not granted access to SQL Agent proxies (Scored)
+*/
+select '3.11 public role access to proxy:'
+declare @prname varchar(100)
+set @string=''
+use msdb;
+if exists(
+SELECT sp.name AS proxyname
+FROM dbo.sysproxylogin spl
+JOIN sys.database_principals dp
+ON dp.sid = spl.sid
+JOIN sysproxies sp
+ON sp.proxy_id = spl.proxy_id
+WHERE principal_id = USER_ID('public'))
+
+begin 
+select 'public role have SQL Agent proxies access, revoking now'
+
+DECLARE database_cursor CURSOR FOR 
+SELECT sp.name 
+FROM dbo.sysproxylogin spl
+JOIN sys.database_principals dp
+ON dp.sid = spl.sid
+JOIN sysproxies sp
+ON sp.proxy_id = spl.proxy_id
+WHERE principal_id = USER_ID('public')
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @prname 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+
+     EXEC dbo.sp_revoke_login_from_proxy @name = N'public', @proxy_name =
+@prname;
+	 --select @command
+	 
+
+     FETCH NEXT FROM database_cursor INTO @prname 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+select 'revoking done'
+end
+
+else
+select 'public role have no SQL Agent proxies access'
+
+/*
+4.1 Ensure 'MUST_CHANGE' Option is set to 'ON' for All SQL Authenticated Logins (Not Scored)
+*/
+use master;
+select '4.1 MUST_CHANGE option:'
+-- Audit Only, not feasible to remedy in T-SQL
+
+select name, is_policy_checked, is_expiration_checked from sys.sql_logins
+where is_policy_checked=0 or is_expiration_checked=0
+
+
+
+/*
+4.3 Ensure 'CHECK_POLICY' Option is set to 'ON' for All SQL Authenticated Logins (Scored)
+*/
+select '4.3 CHECK_POLICY (NOTE: reverse position between 4.2 and 4.3 because of dependency):'
+
+--declare @loginname varchar(100)
+set @loginname=''
+set @string=''
+use master;
+if exists(
+SELECT name, is_disabled
+FROM sys.sql_logins
+WHERE is_policy_checked = 0)
+
+begin 
+select 'CHECK_policy option is not set, setting now'
+
+DECLARE database_cursor CURSOR FOR 
+SELECT name
+FROM sys.sql_logins
+WHERE is_policy_checked = 0
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @loginname 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+select @string= 'ALTER LOGIN '+@loginname+' WITH CHECK_POLICY = ON;'
+EXEC sp_executesql @string
+	 --select @command
+	 
+
+     FETCH NEXT FROM database_cursor INTO @loginname 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+select 'setting done'
+end
+
+else
+select 'CHECK_policy option is set'
+
+
+/*
+4.2 Ensure 'CHECK_EXPIRATION' Option is set to 'ON' for All SQL Authenticated Logins Within the Sysadmin Role (Scored)
+*/
+select '4.2 CHECK_EXPIRATION option:'
+
+set @string=''
+use master;
+if exists(
+SELECT l.[name], 'sysadmin membership' AS 'Access_Method'
+FROM sys.sql_logins AS l
+WHERE IS_SRVROLEMEMBER('sysadmin',name) = 1
+AND l.is_expiration_checked <> 1
+UNION ALL
+SELECT l.[name], 'CONTROL SERVER' AS 'Access_Method'
+FROM sys.sql_logins AS l
+JOIN sys.server_permissions AS p
+ON l.principal_id = p.grantee_principal_id
+WHERE p.type = 'CL' AND p.state IN ('G', 'W')
+AND l.is_expiration_checked <> 1)
+
+begin 
+select 'CHECK_EXPIRATION option is not set, setting now'
+
+DECLARE database_cursor CURSOR FOR 
+SELECT l.[name]
+FROM sys.sql_logins AS l
+WHERE IS_SRVROLEMEMBER('sysadmin',name) = 1
+AND l.is_expiration_checked <> 1
+UNION ALL
+SELECT l.[name]
+FROM sys.sql_logins AS l
+JOIN sys.server_permissions AS p
+ON l.principal_id = p.grantee_principal_id
+WHERE p.type = 'CL' AND p.state IN ('G', 'W')
+AND l.is_expiration_checked <> 1
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @loginname 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+select @string= 'ALTER LOGIN '+@loginname+' WITH CHECK_EXPIRATION = ON;'
+EXEC sp_executesql @string
+	 --select @command
+	 
+
+     FETCH NEXT FROM database_cursor INTO @loginname 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+select 'setting done'
+end
+
+else
+select 'CHECK_EXPIRATION option is set'
+
+
+
+/*
+5.1 Ensure 'Maximum number of error log files' is set to greater than or equal to '12' (Scored)
+*/
+select '5.1 Maximum number of error log files:'
+
+DECLARE @NumErrorLogs int;
+DECLARE @NumberOfLogFiles int;
+EXEC master.sys.xp_instance_regread
+N'HKEY_LOCAL_MACHINE',
+N'Software\Microsoft\MSSQLServer\MSSQLServer',
+N'NumErrorLogs',
+@NumErrorLogs OUTPUT;
+SELECT @NumberOfLogFiles=ISNULL(@NumErrorLogs, -1) 
+
+if (@NumberOfLogFiles<12)
+begin
+select 'error log files less than 12, increasing now'
+EXEC master.sys.xp_instance_regwrite
+N'HKEY_LOCAL_MACHINE',
+N'Software\Microsoft\MSSQLServer\MSSQLServer',
+N'NumErrorLogs',
+REG_DWORD,
+15;
+select 'increasing done'
+end
+
+else
+select 'error log files greater than 12'
+
+/*
+5.2 Ensure 'Default Trace Enabled' Server Configuration Option is set to '1' (Scored)
+*/
+select '5.2 Default Trace:'
+
+select @config_option='default trace enabled'
+SELECT @val=CAST(value as int) , @val_use=CAST(value_in_use as int) 
+FROM sys.configurations
+WHERE name = @config_option
+
+if @val=1 and @val_use=1
+select @config_option+ ' settings are compliant'
+else
+begin
+select @config_option+' are not compliant! configuring now'
+EXECUTE sp_configure 'show advanced options', 1;
+RECONFIGURE;
+EXECUTE sp_configure @config_option, 1;
+RECONFIGURE;
+EXECUTE sp_configure 'show advanced options', 0;
+RECONFIGURE;
+select 'configuring done'
+end
+
+/*
+5.3 Ensure 'Login Auditing' is set to 'failed logins' (Scored)
+*/
+select '5.3 Login Auditing:'
+declare @configvalue varchar(100)
+IF OBJECT_ID('tempdb..#auditlevel') IS NOT NULL
+    DROP TABLE #auditlevel
+create table #auditlevel (
+                        auditname varchar(100) NOT NULL,
+                        configvalue varchar(100) NOT NULL
+                       )
+
+insert into #auditlevel EXEC xp_loginconfig 'audit level';
+select @configvalue=configvalue from #auditlevel
+
+if @configvalue='failure'
+select 'Login Auditing is set to failed logins'
+else
+begin
+select 'Login Auditing is not set to failed logins, setting now'
+EXEC xp_instance_regwrite N'HKEY_LOCAL_MACHINE',
+N'Software\Microsoft\MSSQLServer\MSSQLServer', N'AuditLevel',
+REG_DWORD, 2
+select 'setting done'
+end
+
+drop table #auditlevel
+
+/*
+5.4 Ensure 'SQL Server Audit' is set to capture both 'failed' and 'successful logins' (Scored)
+*/
+select '5.4 SQL Server Audit:'
+ declare @auditaction int
+
+ SELECT
+ S.name AS 'Audit Name'
+ , CASE S.is_state_enabled
+ WHEN 1 THEN 'Y'
+ WHEN 0 THEN 'N' END AS 'Audit Enabled'
+ , S.type_desc AS 'Write Location'
+ , SA.name AS 'Audit Specification Name'
+ , CASE SA.is_state_enabled
+ WHEN 1 THEN 'Y'
+ WHEN 0 THEN 'N' END AS 'Audit Specification Enabled'
+ , SAD.audit_action_name
+ , SAD.audited_result
+ FROM sys.server_audit_specification_details AS SAD
+ JOIN sys.server_audit_specifications AS SA
+ ON SAD.server_specification_id = SA.server_specification_id
+ JOIN sys.server_audits AS S
+ ON SA.audit_guid = S.audit_guid
+ WHERE SAD.audit_action_id IN ('CNAU', 'LGFL', 'LGSD');
+ set @auditaction=@@rowcount;
+
+ if exists ( select SAD.audit_action_name
+ FROM sys.server_audit_specification_details AS SAD
+ JOIN sys.server_audit_specifications AS SA
+ ON SAD.server_specification_id = SA.server_specification_id
+ JOIN sys.server_audits AS S
+ ON SA.audit_guid = S.audit_guid
+ WHERE SAD.audit_action_id IN ('CNAU', 'LGFL', 'LGSD')
+ and SAD.audit_action_name not in ('AUDIT_CHANGE_GROUP','FAILED_LOGIN_GROUP','SUCCESSFUL_LOGIN_GROUP')
+ ) or @auditaction<>3
+begin 
+select 'SQL Server Audit is not set to capture both fail and success, setting now'
+CREATE SERVER AUDIT TrackLogins
+TO APPLICATION_LOG;
+
+CREATE SERVER AUDIT SPECIFICATION TrackAllLogins
+FOR SERVER AUDIT TrackLogins
+ADD (FAILED_LOGIN_GROUP),
+ADD (SUCCESSFUL_LOGIN_GROUP),
+ADD (AUDIT_CHANGE_GROUP)
+WITH (STATE = ON);
+
+ALTER SERVER AUDIT TrackLogins
+WITH (STATE = ON);
+
+select 'setting done'
+end
+
+else
+select 'SQL Server Audit is set to capture both fail and success'
+
+/*
+6.1 Ensure Database and Application User Input is Sanitized (Not Scored)
+*/
+select '6.1 Application User Input:'
+select 'Ignored'
+-- Application side Only, not feasible to remedy in T-SQL
+
+/*
+6.2 Ensure 'CLR Assembly Permission Set' is set to 'SAFE_ACCESS' for All CLR Assemblies (Scored)
+*/
+select '6.2 CLR Assembly Permission Set:'
+
+set @string=''
+if exists(SELECT name,
+permission_set_desc
+FROM sys.assemblies
+WHERE is_user_defined = 1 and permission_set_desc<>'SAFE_ACCESS')
+begin
+select 'there are unsafe CLR Assembly Permission, setting now'
+SELECT @string=@string+'ALTER ASSEMBLY '+[name]+' WITH PERMISSION_SET = SAFE;'
+
+FROM sys.assemblies
+WHERE is_user_defined = 1 and permission_set_desc<>'SAFE_ACCESS'
+EXEC sp_executesql @string
+select 'setting done'
+end
+else
+select 'there are no unsafe CLR Assembly Permission Set'
+
+
+/*
+7.1 Ensure 'Symmetric Key encryption algorithm' is set to 'AES_128' or higher in non-system databases (Scored)
+*/
+
+-- Audit Only, remedy relates to encryption certificate, need further discussion
+select '7.1 Symmetric Key encryption:'
+--DECLARE @DB_Name varchar(100) 
+--DECLARE @Command nvarchar(500) 
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases  where database_id>4
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+     SELECT @Command = 'use '+ @DB_Name+ '; select ''check '+@DB_Name+':'';
+	 SELECT db_name() AS Database_Name, name AS Key_Name
+FROM sys.symmetric_keys
+WHERE algorithm_desc NOT IN (''AES_128'',''AES_192'',''AES_256'')
+AND db_id() > 4;'
+     EXEC sp_executesql @Command 
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+/*
+7.2 Ensure Asymmetric Key Size is set to 'greater than or equal to 2048' in non-system databases (Scored)
+*/
+select '7.2 Asymmetric Key Size:'
+-- Audit Only, remedy relates to encryption certificate, need further discussion
+--DECLARE @DB_Name varchar(100) 
+--DECLARE @Command nvarchar(500) 
+DECLARE database_cursor CURSOR FOR 
+SELECT name FROM sys.databases  where database_id>4
+
+OPEN database_cursor 
+
+FETCH NEXT FROM database_cursor INTO @DB_Name 
+
+WHILE @@FETCH_STATUS = 0 
+BEGIN 
+     SELECT @Command = 'use '+ @DB_Name+ '; select ''check '+@DB_Name+':''; 
+	 SELECT db_name() AS Database_Name, name AS Key_Name
+FROM sys.asymmetric_keys
+WHERE key_length < 2048
+AND db_id() > 4;'
+     EXEC sp_executesql @Command 
+
+     FETCH NEXT FROM database_cursor INTO @DB_Name 
+END 
+
+CLOSE database_cursor 
+DEALLOCATE database_cursor
+
+/*
+8.1 Ensure 'SQL Server Browser Service' is configured correctly (Not Scored)
+*/
+
+-- Unable to Audit & remedy in T-SQL
+select '8.1 SQL Server Browser Service:'
+select 'Ignored'
